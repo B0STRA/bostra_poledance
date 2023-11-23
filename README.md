@@ -24,6 +24,9 @@ FiveM Pole / Dancing script.
 ## Preview
 - ([Streamable](https://streamable.com/fphors))
 
+## Known Issues
+- Spawned props duplicate target options
+
 ## Credits
 - Raycast Code as I couldn't get lib raycast to work how I wanted ([RoyaleWind](https://github.com/RoyaleWind/RW_DRAW))
 
