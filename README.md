@@ -20,6 +20,13 @@ FiveM Pole / Dancing script.
 1. Drag the `bostra_poledance` folder into your resources.
 2. Ensure `ox_lib`, and the target resource (if in use) are ensured **before** `bostra_poledance`.
 3. `newpole` admin command creates a pole and copys the pole coordinates to your clipboard, paste it in your config if you want it permanent.
+4. Optional addition to use in [ps-housing](https://github.com/Project-Sloth/ps-housing), Add to your ```shared\config.lua``` under a category's items like so: 
+```lua        
+        category = "Misc",
+        items = {
+            { ["object"] = "v_corp_facebeanbag", ["price"] = 100, ["label"] = "Bean Bag 1" },
+            { ["object"] = "prop_strip_pole_01", ["price"] = 2500, ["label"] = "Dance Pole" }, --Added line
+```
 
 ## Preview
 - ([Streamable](https://streamable.com/fphors))
