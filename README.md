@@ -38,4 +38,4 @@ FiveM Pole / Dancing script.
 - Raycast Code as I couldn't get lib raycast to work how I wanted ([RoyaleWind](https://github.com/RoyaleWind/RW_DRAW))
 
 ## Support
-- [md-scripts Discord](https://discord.gg/RVx8nVwcEG)
+- [mustache scripts - Discord](https://discord.gg/RVx8nVwcEG)
