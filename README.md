@@ -39,3 +39,7 @@ FiveM Pole / Dancing script.
 
 ## Troubleshooting & Support
 [Mustache Scripts - Discord](https://discord.gg/RVx8nVwcEG)
+
+
+## Tip / Commission Me
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A46AZW4)
