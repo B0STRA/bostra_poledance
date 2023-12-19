@@ -1,4 +1,4 @@
-Config = { Debug = false, UseModels = true, Target = 'ox' } --UseModels true for all prop instances, Target 'qb' or 'ox' or 'lib'
+Config = { Debug = false, UseModels = true, Target = 'lib' } --UseModels true for all prop instances, Target 'qb' or 'ox' or 'lib'
 
 Config.Poles = {
     { position = vec4(104.07, -1292.23, 28.26, 301.77),                  spawn = true }, --position vec4, spawn optional, job optional

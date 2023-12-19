@@ -34,9 +34,6 @@ FiveM Pole / Dancing script.
 ## Known Issues
 - Spawned props duplicate target options, scene coords could be better...
 
-## Credits
-- Raycast Code as I couldn't get lib raycast to work how I wanted ([RoyaleWind](https://github.com/RoyaleWind/RW_DRAW))
-
 ## Troubleshooting & Support
 [Mustache Scripts - Discord](https://discord.gg/RVx8nVwcEG)
 
