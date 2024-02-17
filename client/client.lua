@@ -284,7 +284,7 @@ RegisterNetEvent('bm_dance:start', function(args)
     if not args.coords then args.coords = position end
     if args.dance then
         local nearbyObjects = lib.getNearbyObjects(args.coords, 1.5)
-        if #nearbyObjects > 0 then
+        if nearbyObjects then
             local closestObject = nearbyObjects[1]
             local scene = NetworkCreateSynchronisedScene(closestObject.coords.x + 0.07, closestObject.coords.y + 0.3,
                 closestObject.coords.z + 1.15, 0.0, 0.0, 0.0, 2, false, true, 1065353216, 0, 1.3)
