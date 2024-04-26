@@ -1,10 +1,21 @@
 local polePoints = {}
+local poleProps = {}
+local modelTargs = {}
+local isDancing = false
+local Config = require 'config.config'
 
 lib.registerContext({
     id = 'dance_menu',
     title = 'Select Your Dance',
     options = {
         { title = 'Dance Options' }, {
+        title = 'Cancel Dance',
+        icon = 'times',
+        onSelect = function()
+            isDancing = false
+            ClearPedTasks(cache.ped)
+        end,
+    }, {
         title = 'Pole Dance #1',
         icon = 'shoe-prints',
         event = 'bm_dance:start',
@@ -77,55 +88,48 @@ lib.registerContext({
     }
 })
 
-for _, v in ipairs(Config.Poles) do
-    local polePoints = lib.points.new({
-        coords = v.position,
-        distance = 3.0,
-    })
-    polePoints[#polePoints + 1] = v
-end
-
-function StartRay()
-    local run = true
-    while run do
-        local Wait = 1
-        local hit, entityHit, endCoords, surfaceNormal, matHash = lib.raycast.cam(511, 4, 10)
-        lib.showTextUI('Raycast Coords:  \n X:  ' ..
-        endCoords.x .. ',  \n Y:  ' .. endCoords.y .. ',  \n Z:  ' .. endCoords.z .. '  \n[E] to copy  \n[DEL] to cancel')
+local function StartRay()
+    lib.showTextUI('[E] to copy  \n[DEL] to cancel')
+    while true do
+        local _, _, endCoords, _, _ = lib.raycast.cam(1, 4, 10)
         DrawMarker(21, endCoords.x, endCoords.y, endCoords.z, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.1, 0.1, 0.1, 255, 255,
-        255, 255, false, true, 2, nil, nil, false, false)
-        if IsControlJustReleased(0, 38) then
+            255, 255, false, true, 0, false, false, false, false)
+        if IsControlJustPressed(0, 38) or IsControlJustReleased(0, 38) then
             lib.hideTextUI()
-            run = false
             return endCoords
-        end
-
-        if IsControlJustReleased(0, 178) then
+        elseif IsControlJustPressed(0, 178) or IsControlJustReleased(0, 178) then
             lib.hideTextUI()
-            run = false
             return nil
         end
-
-        Citizen.Wait(Wait)
+        Wait(0)
     end
 end
 
-function ToConfigFormat(poleConfig)
-    local formattedConfig = "{ position = vec4(" ..
-        poleConfig.position.x .. "," .. poleConfig.position.y .. "," .. poleConfig.position.z .. ",0.0),"
-    if poleConfig.spawn then
-        formattedConfig = formattedConfig .. " spawn = true },"
-    else
-        formattedConfig = formattedConfig .. " },"
+local function DestroyTargets()
+    for _, pole in ipairs(polePoints) do
+        if Config.Target == 'ox' then
+            exports.ox_target:removeZone(pole)
+            if Config.UseModels then
+                for _, v in pairs(modelTargs) do
+                    exports.ox_target:removeModel('prop_strip_pole_01', v)
+                end
+            end
+        elseif Config.Target == 'qb' then
+            exports['qb-target']:RemoveZone(pole)
+        elseif Config.Target == 'lib' then
+            pole:remove()
+        end
     end
-    return formattedConfig
+    for _, pole in ipairs(poleProps) do
+        if DoesEntityExist(pole) then
+            DeleteObject(pole)
+            DeleteEntity(pole)
+        end
+    end
 end
 
-local poleProps = {}
-local modelTargs = {}
-
-function CreateTargets()
-        DestroyTargets()
+local function CreateTargets()
+    DestroyTargets()
     if Config.Target == 'ox' then
         if Config.UseModels then
             local modelTarg = exports.ox_target:addModel('prop_strip_pole_01', {
@@ -144,7 +148,8 @@ function CreateTargets()
         for k, v in pairs(Config.Poles) do
             if v.spawn then
                 lib.requestModel('prop_strip_pole_01')
-               local pole =  CreateObject(joaat('prop_strip_pole_01'), v.position.x, v.position.y, v.position.z, false, false,
+                local pole = CreateObject(joaat('prop_strip_pole_01'), v.position.x, v.position.y, v.position.z, false,
+                    false,
                     false)
                 poleProps[#poleProps + 1] = pole
             end
@@ -187,11 +192,12 @@ function CreateTargets()
         for k, v in pairs(Config.Poles) do
             if v.spawn then
                 lib.requestModel('prop_strip_pole_01')
-                local pole = CreateObject(joaat('prop_strip_pole_01'), v.position.x, v.position.y, v.position.z, false, false,
+                local pole = CreateObject(joaat('prop_strip_pole_01'), v.position.x, v.position.y, v.position.z, false,
+                    false,
                     false)
                 poleProps[#poleProps + 1] = pole
             end
-           local poleZone = exports['qb-target']:AddBoxZone('pole' .. k, v.position.xyz, 1.5, 1.5, {
+            local poleZone = exports['qb-target']:AddBoxZone('pole' .. k, v.position.xyz, 1.5, 1.5, {
                 name = "pole" .. k,
                 heading = v.position.w,
                 debugPoly = Config.Debug,
@@ -216,7 +222,8 @@ function CreateTargets()
         for k, v in pairs(Config.Poles) do
             if v.spawn then
                 lib.requestModel('prop_strip_pole_01')
-               local pole = CreateObject(joaat('prop_strip_pole_01'), v.position.x, v.position.y, v.position.z, false, false,
+                local pole = CreateObject(joaat('prop_strip_pole_01'), v.position.x, v.position.y, v.position.z, false,
+                    false,
                     false)
                 poleProps[#poleProps + 1] = pole
             end
@@ -228,12 +235,13 @@ function CreateTargets()
                     lib.showTextUI('Press [E] to dance')
                 end,
                 inside = function()
-                    if IsEntityPlayingAnim(cache.ped, 'mini@strip_club@pole_dance@pole_dance1', 'pd_dance_01', 3) or IsEntityPlayingAnim(cache.ped, 'mini@strip_club@pole_dance@pole_dance2', 'pd_dance_02', 3) or IsEntityPlayingAnim(cache.ped, 'mini@strip_club@pole_dance@pole_dance3', 'pd_dance_03', 3) then
-                        lib.hideTextUI()
+                    if isDancing then
                         lib.showTextUI('Press [X] to stop dancing')
                         if IsControlJustPressed(0, 73) then
+                            isDancing = false
                             ClearPedTasks(cache.ped)
                             lib.hideTextUI()
+                            lib.showTextUI('Press [E] to dance')
                         end
                     end
                     if IsControlJustReleased(0, 38) then
@@ -249,54 +257,47 @@ function CreateTargets()
             polePoints[#polePoints + 1] = poleZone
         end
     end
-end
-
-function DestroyTargets()
-    for i = 1, #polePoints do
-        local pole = polePoints[i]
-        if Config.Target == 'ox' then
-            exports.ox_target:removeZone(pole)
-            if Config.UseModels then
-                for k, v in pairs(modelTargs) do
-                    print(k, v)
-                exports.ox_target:removeModel('prop_strip_pole_01', modelTargs[k])
-                end
-            end
-        elseif Config.Target == 'qb' then
-            exports['qb-target']:RemoveZone(pole)
-        elseif Config.Target == 'lib' then
-            pole:remove()
-        end
-    end
-    for i = 1, #poleProps do
-        local pole = poleProps[i]
-        if DoesEntityExist(pole) then
-            DeleteObject(pole)
-            DeleteEntity(pole)
-    end
+    for _, v in ipairs(Config.Poles) do
+        local polePoints = lib.points.new({
+            coords = v.position,
+            distance = 3.0,
+        })
+        polePoints[#polePoints + 1] = v
     end
 end
 
+local function ToConfigFormat(poleConfig)
+    local formattedConfig = "{ position = vec4(" ..
+        poleConfig.position.x .. "," .. poleConfig.position.y .. "," .. poleConfig.position.z .. ",0.0),"
+    if poleConfig.spawn then
+        formattedConfig = formattedConfig .. " spawn = true },"
+    else
+        formattedConfig = formattedConfig .. " },"
+    end
+    return formattedConfig
+end
 
 RegisterNetEvent('bm_dance:start', function(args)
     local position = GetEntityCoords(cache.ped)
     local usePolePosition = false
     if not args.coords then args.coords = position end
     if args.dance then
-        local nearbyObjects = lib.getNearbyObjects(args.coords, 1.5)
+        local nearbyObjects = lib.points.getClosestPoint()
         if nearbyObjects then
-            local closestObject = nearbyObjects[1]
-            local scene = NetworkCreateSynchronisedScene(closestObject.coords.x + 0.07, closestObject.coords.y + 0.3,
-                closestObject.coords.z + 1.15, 0.0, 0.0, 0.0, 2, false, true, 1065353216, 0, 1.3)
+            isDancing = true
+            local scene = NetworkCreateSynchronisedScene(nearbyObjects.coords.x + 0.07, nearbyObjects.coords.y + 0.3,
+                nearbyObjects.coords.z + 1.15, 0.0, 0.0, 0.0, 2, false, true, 1065353216, 0, 1.3)
             NetworkAddPedToSynchronisedScene(cache.ped, scene, 'mini@strip_club@pole_dance@pole_dance' .. args.dance,
                 'pd_dance_0' .. args.dance, 1.5, -4.0, 1, 1, 1148846080, 0)
             NetworkStartSynchronisedScene(scene)
         else
+            isDancing = true
             usePolePosition = true
         end
     elseif args.lapdance then
         lib.requestAnimDict(args.dict)
         TaskPlayAnim(cache.ped, args.dict, args.anim, 1.0, 1.0, -1, 1, 0, 0, 0, 0)
+        isDancing = true
     else
         for _, point in ipairs(polePoints) do
             local distance = #(point.coords - GetEntityCoords(cache.ped))
@@ -311,7 +312,7 @@ RegisterNetEvent('bm_dance:start', function(args)
         if closestPoint then
             if Config.Debug then print('Close') end
             args.coords = closestPoint.coords
-
+            isDancing = true
             local scene = NetworkCreateSynchronisedScene(args.coords.x + 0.07, args.coords.y + 0.3,
                 args.coords.z + 1.15, 0.0, 0.0, 0.0, 2, false, true, 1065353216, 0, 1.3)
             NetworkAddPedToSynchronisedScene(cache.ped, scene, 'mini@strip_club@pole_dance@pole_dance' .. args.dance,
@@ -344,13 +345,14 @@ RegisterNetEvent('bm_dance:pole', function()
 end)
 
 AddEventHandler('onClientResourceStart', function(resourceName)
-    if (GetCurrentResourceName() ~= resourceName) then
+    if GetCurrentResourceName() ~= resourceName then
         return
     end
     CreateTargets()
 end)
+
 AddEventHandler('onClientResourceStop', function(resourceName)
-    if (GetCurrentResourceName() ~= resourceName) then
+    if GetCurrentResourceName() ~= resourceName then
         return
     end
     DestroyTargets()
@@ -358,7 +360,7 @@ end)
 
 if GetResourceState('qb-core') == 'started' then
     AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-            Wait(3000)
-            CreateTargets()
+        Wait(3000)
+        CreateTargets()
     end)
 end

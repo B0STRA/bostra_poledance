@@ -1,8 +1,11 @@
 fx_version 'cerulean'
-version '0.0.1'
+version '1.0.0'
 game 'gta5'
 lua54 'yes'
-client_scripts {"client/*"}
-shared_scripts {"@ox_lib/init.lua", "config/*"}
-server_scripts {"server/*"}
-
+author 'Bostra'
+description 'FiveM Poledancing'
+client_scripts { "client/client.lua" }
+files { 'config/config.lua' }
+shared_scripts { "@ox_lib/init.lua", "config/config.lua" }
+server_scripts { "server/server.lua" }
+dependency 'ox_lib'
