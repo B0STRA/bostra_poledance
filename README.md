@@ -16,6 +16,7 @@ FiveM Pole / Dancing script.
 - [ox_lib](https://github.com/overextended/ox_lib)
 - [ox_target](https://github.com/overextended/ox_target)
 - [ox_inventory](https://github.com/overextended/ox_inventory) (for tipping)
+- OneSync enabled on the server (players must see each other for tipping to work)
 
 ## Installation
 1. Drag the `bostra_poledance` folder into your resources.
